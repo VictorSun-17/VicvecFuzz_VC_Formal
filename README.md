@@ -1,7 +1,12 @@
-README for VicvecFuzz
+# VicvecFuzz
 
+## Overview
+VicvecFuzz generates random C++ programs that test STL containers and then derives matching SystemVerilog and VC Formal setups to check the equivalence checker.
 
-chmod +x compile_loop.sh
+## Building the Generator
+1. Ensure a C++17-capable compiler is available (e.g., GCC 11+).
+2. Build the generator executable:
+   g++ *.cpp -o main
+3. Run the script
+   ./compile_loop.sh
 
-
-./compile_loop.sh
