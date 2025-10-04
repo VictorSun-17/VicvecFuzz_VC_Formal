@@ -7,101 +7,85 @@
 #include <cstdlib>
 #include <ctime>
 #include <cstdio>
-//#include <format>
 #include <initializer_list>
 #include <string>
-#include "Array_create.h"
+#include "Random_program.h"
 #include <sstream>
 
 
-
-
-std::vector<int> create_ary_int(int length = 1) {
-	std::vector<int> temp;
-	for (int n = 1; n <= length; n++) {
-		switch (random_Int(1, 2)) {
-		case 1:
-			temp.push_back(random_Int(-100, 100));
-			break;
-
-		case 2:
-			temp.push_back(random_Bool());
-			break;
-		}
-	}
-	return temp;
-}
-
-std::vector<float> create_ary_float(int length = 1) {
-	std::vector<float> temp;
-	for (int n = 1; n <= length; n++) {
-		switch (random_Int(1, 2)) {
-		case 1:
-			temp.push_back(random_Int(-100, 100));
-			break;
-
-		case 2:
-			temp.push_back(random_Bool());
-			break;
-
-		case 3:
-			temp.push_back(random_Float(-100, 100));
-			break;
-		}
-	}
-	return temp;
-}
-
-std::vector<double> create_ary_double(int length = 1) {
-	std::vector<double> temp;
-	for (int n = 1; n <= length; n++) {
-		switch (random_Int(1, 4)) {
-		case 1:
-			temp.push_back(random_Int(-100, 100));
-			break;
-
-		case 2:
-			temp.push_back(random_Bool());
-			break;
-
-		case 3:
-			temp.push_back(random_Float(-100, 100));
-			break;
-
-		case 4:
-			temp.push_back(random_Double(-100, 100));
-			break;
-		}
-	}
-	return temp;
-}
-
-std::vector<char> create_ary_char(int length = 1) {
-	std::vector<char> temp;
-	for (int n = 1; n <= length; n++) {
-		temp.push_back(random_Char());
-	}
-	return temp;
-}
-
-std::vector<bool> create_ary_bool(int length = 1) {
-	std::vector<bool> temp;
-	for (int n = 1; n <= length; n++) {
-		temp.push_back(random_Bool());
-	}
-	return temp;
-}
-
-
-struct array_records {
-	int length;
-	std::string type;
-};
-
-
-std::string random_deq_op(int n, std::vector<array_records> records) {
+std::string generate_array_element(std::string type) {
 	std::string op;
-	int operation_numbers = random_Int(5, 5);
+	int vec_elements_num = random_Int(5, 10);
+	if (type == "int")
+		return std::to_string(random_Int(-100, 100));
+	else if (type == "float")
+		return std::to_string(random_Float(-100, 100));
+	else if (type == "double")
+		return std::to_string(random_Double(-100, 100));
+	else if (type == "char")
+		return std::to_string(random_Char());
+	else if (type == "bool")
+		return std::to_string(random_Bool());
+	else if (type == "unsigned int")
+		return std::to_string(random_UInt(0, 100));
+	else if (type == "unsigned char")
+		return std::to_string(random_UChar());
+	else if (type == "short")
+		return std::to_string(random_Short(100, 100));
+	else if (type == "unsigned short")
+		return std::to_string(random_UShort(0, 100));
+	else if (type == "long")
+		return std::to_string(random_Long(-100, 100));
+	else if (type == "unsigned long")
+		return std::to_string(random_ULong(0, 100));
+}
+
+
+std::string arithmatic_block(int n, std::vector<array_records> records, int operation_numbers = 3) {
+	std::string oss;
+	int current = 0;
+	int current_2 = 0;
+	std::vector<array_records> local_records = records;
+	for (int m = 1; m <= operation_numbers; m++) {
+		current = randomInt(0, n - 1);
+		current_2 = randomInt(0, n - 1);
+		auto record_1 = local_records.at(current);
+		auto record_2 = local_records.at(current_2);
+		switch (random_Int(1, 6)) {
+		case 1:
+			oss += "	auto arith_ary_" + std::to_string(m) + " = std::plus()(ary_" + std::to_string(current)
+				+ "[" + std::to_string(random_Int(0, record_1.length - 1)) + "], " + generate_array_element(record_1.type) + "); \n";
+			break;
+		case 2:
+			oss += "	auto arith_ary_" + std::to_string(m) + " = std::minus()(ary_" + std::to_string(current)
+				+ "[" + std::to_string(random_Int(0, record_1.length - 1)) + "], " + generate_array_element(record_1.type) + "); \n";
+			break;
+		case 3:
+			oss += "	auto arith_ary_" + std::to_string(m) + " = std::multiplies()(ary_" + std::to_string(current)
+				+ "[" + std::to_string(random_Int(0, record_1.length - 1)) + "], " + generate_array_element(record_1.type) + "); \n";
+			break;
+		case 4:
+			oss += "	auto arith_ary_" + std::to_string(m) + " = std::divides()(ary_" + std::to_string(current)
+				+ "[" + std::to_string(random_Int(0, record_1.length - 1)) + "], " + generate_array_element(record_1.type) + "); \n";
+			break;
+		case 5:
+			oss += "	auto arith_ary_" + std::to_string(m) + " = std::modulus()(ary_" + std::to_string(current)
+				+ "[" + std::to_string(random_Int(0, record_1.length - 1)) + "], " + generate_array_element(record_1.type) + "); \n";
+			break;
+		case 6:
+			oss += "	auto arith_ary_" + std::to_string(m) + " = std::negate()(ary_" + std::to_string(current)
+				+ "[" + std::to_string(random_Int(0, record_1.length - 1)) + "] ); \n";
+			break;
+
+		}
+
+	}
+	return oss;
+}
+
+
+std::string random_array_op(int n, std::vector<array_records> records, int operation_numbers = random_Int(5, 5)) {
+	std::string op;
 	int current = 0;
 	int current_2 = 0;
 	std::vector<array_records> local_records = records;
@@ -114,7 +98,7 @@ std::string random_deq_op(int n, std::vector<array_records> records) {
 		auto record_2 = local_records.at(current_2);
 		int tmp_length;
 		int tmp_length_2;
-		switch (random_Int(1, 29)) {
+		switch (random_Int(1, 16)) {
 		case 1:
 			op += "	ary_" + std::to_string(current) + ".size();\n";
 			break;
@@ -197,7 +181,117 @@ std::string random_deq_op(int n, std::vector<array_records> records) {
 	return op;
 }
 
-std::string create_array(int index) {
+
+std::string random_array_loop(int number_of_index, std::vector<array_records> vec_records, int operation_loop_numbers = random_Int(5, 5)) {
+	std::string op;
+	//std::vector<vector_records> local_records = vec_records;
+	int current = 0;
+	for (int m = 1; m <= operation_loop_numbers; m++) {
+		current = random_Int(0, number_of_index - 1);
+		auto record_1 = vec_records.at(current);
+		int for_loop_size = random_Int(0, 5);
+		switch (random_Int(1, 8)) {
+		case 1:
+			// multiple layer of if/else£ºinsert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (ary_" + std::to_string(current) + "[" + std::to_string(idx) + "] > " + generate_array_element(record_1.type) + ") {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+				op += "	else {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+			}
+			break;
+		case 2:
+			// multiple layer of if/else£ºinsert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (ary_" + std::to_string(current) + "[" + std::to_string(idx) + "] < " + generate_array_element(record_1.type) + ") {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+				op += "	else {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+			}
+			break;
+		case 3:
+			// multiple layer of if/else£ºinsert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (ary_" + std::to_string(current) + "[" + std::to_string(idx) + "] <= " + generate_array_element(record_1.type) + ") {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+				op += "	else {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+			}
+			break;
+		case 4:
+			// multiple layer of if/else£ºinsert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (ary_" + std::to_string(current) + "[" + std::to_string(idx) + "] >= " + generate_array_element(record_1.type) + ") {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+				op += "	else {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+			}
+			break;
+		case 5:
+			// multiple layer of if/else£ºinsert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (ary_" + std::to_string(current) + "[" + std::to_string(idx) + "] == " + generate_array_element(record_1.type) + ") {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+				op += "	else {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+			}
+			break;
+		case 6:
+			// multiple layer of if/else£ºinsert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (ary_" + std::to_string(current) + "[" + std::to_string(idx) + "] != " + generate_array_element(record_1.type) + ") {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+				op += "	else {\n";
+				op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+				op += "	}\n";
+			}
+			break;
+		//case 7:
+		//	if (record_1.length > for_loop_size) {
+		//		op += "	for (int index = 0; index < " + std::to_string(for_loop_size) + "; index ++) {\n";
+		//		op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+		//		op += "	}\n";
+		//	}
+		//	break;
+
+		//case 8:
+		//	if (record_1.length > for_loop_size) {
+		//		op += "	int index_ary_" + std::to_string(m) + "= 0;\n";
+		//		op += "	while (index_ary_" + std::to_string(m) + " < " + std::to_string(for_loop_size) + ") {\n";
+		//		op += random_array_op(number_of_index, vec_records, random_Int(0, 5));
+		//		op += "	index_ary_" + std::to_string(m) + "++;\n";
+		//		op += "	}\n";
+		//	}
+		//	break;
+		}
+		//std::cout << op << std::endl;
+	}
+	return op;
+}
+
+
+
+
+
+
+std::tuple<std::string, std::string, std::vector<array_records>> create_array(int index) {
 	std::string code;
 	std::string oss;
 	std::string type;
@@ -210,6 +304,12 @@ std::string create_array(int index) {
 	std::vector<double> temp_double = {};
 	std::vector<char> temp_char = {};
 	std::vector<bool> temp_bool = {};
+	std::vector<unsigned int> temp_uint = {};
+	std::vector<short> temp_short = {};
+	std::vector<unsigned short> temp_ushort = {};
+	std::vector<unsigned char> temp_uchar = {};
+	std::vector<long> temp_long = {};
+	std::vector<unsigned long> temp_ulong = {};
 
 	//temp 2D vectors
 	std::vector<std::vector<int>> temp_2d_int;
@@ -221,81 +321,14 @@ std::string create_array(int index) {
 
 	std::vector<array_records> ary_records;
 
-	enum aval_Type {
-		INT,
-		DOUBLE,
-		CHAR,
-		BOOL,
-		FLOAT,
-		INT_2D,
-		DOUBLE_2D,
-		CHAR_2D,
-		BOOL_2D,
-		FLOAT_2D,
-		NONE
-	};
-
 	aval_Type data_type = NONE;
 
 
 	for (int n = 0; n < index; n++) {
 
-		switch (random_Int(1, 5))
-			/*switch (1)*/ {
-		case 1:
-			type = "int";
-			data_type = INT;
-			ary_records.push_back({ array_elements_num, type });
-			break;
-		case 2:
-			type = "float";
-			data_type = FLOAT;
-			ary_records.push_back({ array_elements_num, type });
-			break;
-		case 3:
-			type = "double";
-			data_type = DOUBLE;
-			ary_records.push_back({ array_elements_num, type });
-			break;
-		case 4:
-			type = "char";
-			data_type = CHAR;
-			ary_records.push_back({ array_elements_num, type });
-			break;
-		case 5:
-			type = "bool";
-			data_type = BOOL;
-			ary_records.push_back({ array_elements_num, type });
-			break;
+		auto [data_type, type] = random_type();
 
-		case 6:
-			type = "std::array<int, "+std::to_string(array_elements_num) + ">";
-			data_type = INT_2D;
-			ary_records.push_back({ array_rows, type });
-			break;
-		case 7:
-			type = "std::array<float, " + std::to_string(array_elements_num) + ">";
-			data_type = FLOAT_2D;
-			ary_records.push_back({ array_rows, type });
-			break;
-		case 8:
-			type = "std::array<double, " + std::to_string(array_elements_num) + ">";
-			data_type = DOUBLE_2D;
-			ary_records.push_back({ array_rows, type });
-			break;
-		case 9:
-			type = "std::array<char, " + std::to_string(array_elements_num) + ">";
-			data_type = CHAR_2D;
-			ary_records.push_back({ array_rows, type });
-			break;
-		case 10:
-			type = "std::array<bool, " + std::to_string(array_elements_num) + ">";
-			data_type = BOOL_2D;
-			ary_records.push_back({ array_rows, type });
-			break;
-		}
-
-
+		ary_records.push_back({ array_elements_num, type });
 		//vec_records.push_back({ vec_elements_num, type });
 
 
@@ -304,19 +337,19 @@ std::string create_array(int index) {
 
 				switch (data_type) {
 				case INT_2D: //int
-					temp_int = create_ary_int(array_elements_num);
+					temp_int = create_vec_int(array_elements_num);
 					break;
 				case FLOAT_2D: //float
-					temp_float = create_ary_float(array_elements_num);
+					temp_float = create_vec_float(array_elements_num);
 					break;
 				case DOUBLE_2D: //double
-					temp_double = create_ary_double(array_elements_num);
+					temp_double = create_vec_double(array_elements_num);
 					break;
 				case CHAR_2D: //char
-					temp_char = create_ary_char(array_elements_num);
+					temp_char = create_vec_char(array_elements_num);
 					break;
 				case BOOL_2D: //bool
-					temp_bool = create_ary_bool(array_elements_num);
+					temp_bool = create_vec_bool(array_elements_num);
 					break;
 				}
 
@@ -412,95 +445,88 @@ std::string create_array(int index) {
 		else {
 			switch (data_type) {
 			case INT:
-				temp_int = create_ary_int(array_elements_num);
+				temp_int = create_vec_int(array_elements_num);
+				oss += vector_to_string(temp_int);
+
+				temp_int = {};
 				break;
 
 			case FLOAT:
-				temp_float = create_ary_float(array_elements_num);
+				temp_float = create_vec_float(array_elements_num);
+				oss += vector_to_string(temp_float);
+
+				temp_float = {};
 				break;
 
 			case DOUBLE:
-				temp_double = create_ary_double(array_elements_num);
+				temp_double = create_vec_double(array_elements_num);
+				oss += vector_to_string(temp_double);
+
+				temp_double = {};
 				break;
 
 			case CHAR:
-				temp_char = create_ary_char(array_elements_num);
+				temp_char = create_vec_char(array_elements_num);
+				oss += vector_to_string(temp_char);
+
+				temp_char = {};
 				break;
 
 			case BOOL:
-				temp_bool = create_ary_bool(array_elements_num);
+				temp_bool = create_vec_bool(array_elements_num);
+				oss += vector_to_string(temp_bool);
+				temp_bool = {};
+				break;
+			case UCHAR:
+				temp_uchar = create_vec_uchar(array_elements_num);
+				oss += vector_to_string(temp_uchar);
+				temp_uchar = {};
+				break;
+			case USHORT:
+				temp_ushort = create_vec_ushort(array_elements_num);
+				oss += vector_to_string(temp_ushort);
+				temp_ushort = {};
+				break;
+			case SHORT:
+				temp_short = create_vec_short(array_elements_num);
+				oss += vector_to_string(temp_short);
+				temp_short = {};
+				break;
+			case UINT:
+				temp_uint = create_vec_uint(array_elements_num);
+				oss += vector_to_string(temp_uint);
+				temp_uint = {};
+				break;
+			case ULONG:
+				temp_ulong = create_vec_ulong(array_elements_num);
+				oss += vector_to_string(temp_ulong);
+				temp_ulong = {};
+				break;
+			case LONG:
+				temp_long = create_vec_long(array_elements_num);
+				oss += vector_to_string(temp_long);
+				temp_long = {};
 				break;
 
 			}
-
-
-
-			if (data_type == INT) {
-
-				for (int i = 1; i <= array_elements_num; i++) {
-					oss += std::to_string(temp_int[i - 1]);
-					if (i != array_elements_num) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_int = {};
-			}
-			else if (data_type == FLOAT) {
-				for (int i = 1; i <= array_elements_num; i++) {
-					oss += std::to_string(temp_float[i - 1]);
-					if (i != array_elements_num) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_float = {};
-			}
-
-
-			else if (data_type == DOUBLE) {
-				for (int i = 1; i <= array_elements_num; i++) {
-					oss += std::to_string(temp_double[i - 1]);
-					if (i != array_elements_num) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_double = {};
-			}
-
-			else if (data_type == CHAR) {
-				for (int i = 1; i <= array_elements_num; i++) {
-					oss += std::to_string(temp_char[i - 1]);
-					if (i != array_elements_num) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_char = {};
-			}
-
-			else {
-				for (int i = 1; i <= array_elements_num; i++) {
-					oss += std::to_string(temp_bool[i - 1]);
-					if (i != array_elements_num) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-				temp_bool = {};
-			}
-
-
 			//print out secton
-
-			code += "	std::array<" + type + ","+std::to_string(array_elements_num) + "> ary_" + std::to_string(n) + " = {" + oss + "}; \n";
+			switch (random_Int(1, 2)) {
+			case 1:
+				code += "	std::array<" + type + "," + std::to_string(array_elements_num) + "> ary_" + std::to_string(n) + " = {" + oss + "}; \n";
+				break;
+			case 2:
+				code += "	std::array<" + type + "," + std::to_string(array_elements_num) + "> ary_" + std::to_string(n) + " {" + oss + "}; \n";
+			}
 			oss = {};
 
 		}
 
 	}
+	auto array_init = code;
+	code = {};
 	//random operations generated
-	code += random_deq_op(index, ary_records);
+	code += random_array_op(index, ary_records);
+	code += random_array_loop(index, ary_records,1);
 
 	for (int m = 0; m < index; m++) {
 		code += "	std::vector<" + ary_records[m].type + "> newary_" + std::to_string(m) + "(ary_" + std::to_string(m) + ".begin(), ary_" + std::to_string(m) + ".end());\n";
@@ -514,5 +540,5 @@ std::string create_array(int index) {
 
 
 	code += "\n";
-	return code;
+	return { array_init,code,ary_records};
 }

@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <initializer_list>
 #include <string>
-#include "Deque_create.h"
+#include "Random_program.h"
 #include <sstream>
 
 std::deque<int> create_deq_int(int length = 1) {
@@ -87,12 +87,59 @@ std::deque<bool> create_deq_bool(int length = 1) {
 	}
 	return temp;
 }
+std::deque<unsigned int> create_deq_uint(int length = 1) {
+	std::deque<unsigned int> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_UInt(0, 100));
+	}
+	return temp;
+}
 
+std::deque<short> create_deq_short(int length = 1) {
+	std::deque<short> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_Short(-100, 100));
+	}
 
-struct deque_records {
-	int length;
-	std::string type;
-};
+	return temp;
+}
+
+std::deque<unsigned short> create_deq_ushort(int length = 1) {
+	std::deque<unsigned short> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_UShort(0, 100));
+	}
+
+	return temp;
+}
+
+std::deque<unsigned char> create_deq_uchar(int length = 1) {
+	std::deque<unsigned char> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_UChar());
+	}
+
+	return temp;
+}
+
+std::deque<long> create_deq_long(int length = 1) {
+	std::deque<long> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_Long(-100, 100));
+	}
+
+	return temp;
+}
+
+std::deque<unsigned long> create_deq_ulong(int length = 1) {
+	std::deque<unsigned long> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_ULong(0, 100));
+	}
+
+	return temp;
+}
+
 
 
 std::string generate_deque_element(std::string type) {
@@ -108,6 +155,18 @@ std::string generate_deque_element(std::string type) {
 		return std::to_string(random_Char());
 	else if (type == "bool")
 		return std::to_string(random_Bool());
+	else if (type == "unsigned int")
+		return std::to_string(random_UInt(0, 100));
+	else if (type == "unsigned char")
+		return std::to_string(random_UChar());
+	else if (type == "short")
+		return std::to_string(random_Short(100, 100));
+	else if (type == "unsigned short")
+		return std::to_string(random_UShort(0, 100));
+	else if (type == "long")
+		return std::to_string(random_Long(-100, 100));
+	else if (type == "unsigned long")
+		return std::to_string(random_ULong(0, 100));
 	else if (type == "std::deque<int>") {
 		std::deque<int> temp_int = create_deq_int(deq_elements_num);
 		op += "{";
@@ -176,15 +235,31 @@ std::string generate_deque_element(std::string type) {
 
 }
 
+std::vector<deque_records> merge_records_min_length(
+	const std::vector<deque_records>& records1,
+	const std::vector<deque_records>& records2
+) {
+	std::vector<deque_records> merged;
+	size_t size = std::min(records1.size(), records2.size());
+	merged.reserve(size);
+
+	for (size_t i = 0; i < size; ++i) {
+		deque_records merged_record;
+		merged_record.type = records1[i].type; // 你也可以选择 records2[i].type 或做一致性判断
+		merged_record.length = std::min(records1[i].length, records2[i].length);
+		merged.push_back(merged_record);
+	}
+
+	return merged;
+}
 
 
-std::string random_deq_op(int n, std::vector<deque_records> records) {
+std::pair<std::string, std::vector<deque_records>> random_deq_op(int n, std::vector<deque_records> records, int operation_numbers = 10, int loop_index = 1) {
 	std::string op;
-	int operation_numbers = random_Int(5, 5);
 	int current = 0;
 	int current_2 = 0;
 	std::vector<deque_records> local_records = records;
-	int random_size = random_Int(5, 100);
+	int random_size = random_Int(0, 19);//specific for VC Formal
 
 	for (int m = 1; m <= operation_numbers; m++) {
 		current = random_Int(0, n - 1);
@@ -195,23 +270,27 @@ std::string random_deq_op(int n, std::vector<deque_records> records) {
 		int tmp_length_2;
 		switch (random_Int(1, 29)) {
 		case 1:
-			op += "	deq_" + std::to_string(current) + ".push_front(" + generate_deque_element(record_1.type) + "); \n";//Adds an element to the end of the vector.
-			local_records[current].length += 1;
+			if (record_1.length < 20) {
+				op += "	deq_" + std::to_string(current) + ".push_front(" + generate_deque_element(record_1.type) + "); \n";//Adds an element to the end of the vector.
+				local_records[current].length += 1*loop_index;
+			}
 			break;
 		case 2:
-			op += "	deq_" + std::to_string(current) + ".push_back(" + generate_deque_element(record_1.type) + "); \n";//Adds an element to the end of the vector.
-			local_records[current].length += 1;
+			if (record_1.length < 20) {
+				op += "	deq_" + std::to_string(current) + ".push_back(" + generate_deque_element(record_1.type) + "); \n";//Adds an element to the end of the vector.
+				local_records[current].length += 1 * loop_index;
+			}
 			break;
 		case 3:
-			if (record_1.length != 0) {
+			if (record_1.length > 0) {
 				op += "	deq_" + std::to_string(current) + ".pop_front(); \n";
-				local_records[current].length -= 1;
+				local_records[current].length -= 1 * loop_index;
 			}
 			break;
 		case 4:
-			if (record_1.length != 0) {
+			if (record_1.length > 0) {
 				op += "	deq_" + std::to_string(current) + ".pop_back();\n";
-				local_records[current].length -= 1;
+				local_records[current].length -= 1 * loop_index;
 			}
 			break;
 		case 5:
@@ -221,7 +300,7 @@ std::string random_deq_op(int n, std::vector<deque_records> records) {
 			op += "	deq_" + std::to_string(current) + ".max_size();\n";
 			break;
 		case 7:
-
+			
 			op += "	deq_" + std::to_string(current) + ".resize(" + std::to_string(random_size) + ");\n";
 			local_records[current].length = random_size;
 			break;
@@ -268,18 +347,20 @@ std::string random_deq_op(int n, std::vector<deque_records> records) {
 			op += "	deq_" + std::to_string(current) + ".crend();\n"; // Returns const_reverse_iterator to reverse end
 			break;
 		case 20:
-			if (record_1.length == 0) {
-				op += "	deq_" + std::to_string(current) + ".insert(deq_" + std::to_string(current) + ".begin()," + generate_deque_element(record_1.type) + "); \n"; //insert at certain place
+			if (record_1.length < 20) {
+				if (record_1.length == 0) {
+					op += "	deq_" + std::to_string(current) + ".insert(deq_" + std::to_string(current) + ".begin()," + generate_deque_element(record_1.type) + "); \n"; //insert at certain place
+				}
+				else {
+					op += "	deq_" + std::to_string(current) + ".insert(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + "," + generate_deque_element(record_1.type) + "); \n"; //insert at certain place
+				}
+				local_records[current].length += 1 * loop_index;
 			}
-			else {
-				op += "	deq_" + std::to_string(current) + ".insert(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + "," + generate_deque_element(record_1.type) + "); \n"; //insert at certain place
-			}
-			local_records[current].length += 1;
 			break;
 		case 21:
 			if (record_1.length != 0) {
 				op += "	deq_" + std::to_string(current) + ".erase(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
-				local_records[current].length -= 1;
+				local_records[current].length -= 1 * loop_index;
 			}
 			break;
 		case 22:
@@ -297,101 +378,112 @@ std::string random_deq_op(int n, std::vector<deque_records> records) {
 			break;
 
 		case 24:
+			if (record_1.length < 20) {
+				if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool"
+					or record_1.type == "unsigned int" or record_1.type == "unsigned short" or record_1.type == "unsigned char" or record_1.type == "short" or record_1.type == "long"
+					or record_1.type == "unsigned long") {
+					if (record_1.length == 0) {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin()," + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
+					else {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + "," + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
+				}
+				else if (record_1.type == "std::deque<int>")
+				{
+					if (record_1.length == 0) {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin(), std::deque<int>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
+					else {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + " ,std::deque<int>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
+				}
+				else if (record_1.type == "std::deque<float>")
+				{
+					if (record_1.length == 0) {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin(), std::deque<float>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
+					else {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + " ,std::deque<float>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
+				}
+				else if (record_1.type == "std::deque<double>")
+				{
+					if (record_1.length == 0) {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin(), std::deque<double>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
+					else {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + " ,std::deque<double>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
 
-			if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool") {
-				if (record_1.length == 0) {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin()," + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
 				}
-				else {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + "," + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+				else if (record_1.type == "std::deque<char>") {
+					if (record_1.length == 0) {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin(), std::deque<char>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
+					else {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + " ,std::deque<char>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
 				}
+				else if (record_1.type == "std::deque<bool>") {
+					if (record_1.length == 0) {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin(), std::deque<bool>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
+					else {
+						op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + " ,std::deque<bool>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
+					}
+				}
+				local_records[current].length += 1 * loop_index;
 			}
-			else if (record_1.type == "std::deque<int>")
-			{
-				if (record_1.length == 0) {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin(), std::deque<int>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
-				}
-				else {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + " ,std::deque<int>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
-				}
-			}
-			else if (record_1.type == "std::deque<float>")
-			{
-				if (record_1.length == 0) {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin(), std::deque<float>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
-				}
-				else {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + " ,std::deque<float>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
-				}
-			}
-			else if (record_1.type == "std::deque<double>")
-			{
-				if (record_1.length == 0) {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin(), std::deque<double>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
-				}
-				else {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + " ,std::deque<double>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
-				}
-
-			}
-			else if (record_1.type == "std::deque<char>"){
-				if (record_1.length == 0) {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin(), std::deque<char>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
-				}
-				else {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + " ,std::deque<char>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
-				}
-			}
-			else if (record_1.type == "std::deque<bool>") {
-				if (record_1.length == 0) {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin(), std::deque<bool>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
-				}
-				else {
-					op += "	deq_" + std::to_string(current) + ".emplace(deq_" + std::to_string(current) + ".begin() +" + std::to_string(random_Int(0, record_1.length - 1)) + " ,std::deque<bool>" + generate_deque_element(record_1.type) + "); \n"; // Constructs and inserts an element in the vector.
-				}
-			}
-			local_records[current].length += 1;
 			break;
 
 
 		case 26:
-			if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool") {
-				op += "	deq_" + std::to_string(current) + ".emplace_back(" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+			if (record_1.length < 20) {
+				if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool"
+					or record_1.type == "unsigned int" or record_1.type == "unsigned short" or record_1.type == "unsigned char" or record_1.type == "short" or record_1.type == "long"
+					or record_1.type == "unsigned long") {
+					op += "	deq_" + std::to_string(current) + ".emplace_back(" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				}
+				else if (record_1.type == "std::deque<int>")
+					op += "	deq_" + std::to_string(current) + ".emplace_back(std::deque<int>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::deque<float>")
+					op += "	deq_" + std::to_string(current) + ".emplace_back(std::deque<float>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::deque<double>")
+					op += "	deq_" + std::to_string(current) + ".emplace_back(std::deque<double>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::deque<char>")
+					op += "	deq_" + std::to_string(current) + ".emplace_back(std::deque<char>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::deque<bool>")
+					op += "	deq_" + std::to_string(current) + ".emplace_back(std::deque<bool>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				local_records[current].length += 1 * loop_index;
 			}
-			else if (record_1.type == "std::deque<int>")
-				op += "	deq_" + std::to_string(current) + ".emplace_back(std::deque<int>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::deque<float>")
-				op += "	deq_" + std::to_string(current) + ".emplace_back(std::deque<float>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::deque<double>")
-				op += "	deq_" + std::to_string(current) + ".emplace_back(std::deque<double>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::deque<char>")
-				op += "	deq_" + std::to_string(current) + ".emplace_back(std::deque<char>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::deque<bool>")
-				op += "	deq_" + std::to_string(current) + ".emplace_back(std::deque<bool>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
-			local_records[current].length += 1;
 			break;
 
 		case 27:
-			if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool") {
-				op += "	deq_" + std::to_string(current) + ".emplace_front(" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+			if (record_1.length < 20) {
+				if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool"
+					or record_1.type == "unsigned int" or record_1.type == "unsigned short" or record_1.type == "unsigned char" or record_1.type == "short" or record_1.type == "long"
+					or record_1.type == "unsigned long") {
+					op += "	deq_" + std::to_string(current) + ".emplace_front(" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				}
+				else if (record_1.type == "std::deque<int>")
+					op += "	deq_" + std::to_string(current) + ".emplace_front(std::deque<int>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::deque<float>")
+					op += "	deq_" + std::to_string(current) + ".emplace_front(std::deque<float>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::deque<double>")
+					op += "	deq_" + std::to_string(current) + ".emplace_front(std::deque<double>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::deque<char>")
+					op += "	deq_" + std::to_string(current) + ".emplace_front(std::deque<char>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::deque<bool>")
+					op += "	deq_" + std::to_string(current) + ".emplace_front(std::deque<bool>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
+				local_records[current].length += 1 * loop_index;
 			}
-			else if (record_1.type == "std::deque<int>")
-				op += "	deq_" + std::to_string(current) + ".emplace_front(std::deque<int>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::deque<float>")
-				op += "	deq_" + std::to_string(current) + ".emplace_front(std::deque<float>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::deque<double>")
-				op += "	deq_" + std::to_string(current) + ".emplace_front(std::deque<double>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::deque<char>")
-				op += "	deq_" + std::to_string(current) + ".emplace_front(std::deque<char>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::deque<bool>")
-				op += "	deq_" + std::to_string(current) + ".emplace_front(std::deque<bool>" + generate_deque_element(record_1.type) + ");\n"; // Efficient push_back
-			local_records[current].length += 1;
 			break;
 		case 28:
 			op += "	deq_" + std::to_string(current) + ".shrink_to_fit();\n"; // Reduces memory usage by freeing unused space.
 			break;
 		case 29:
-			op += "	deq_" + std::to_string(current) + ".assign(static_cast<size_t> (" + std::to_string(random_Int(0, 19)) + ")," + generate_deque_element(record_1.type) + ");\n";
+			op += "	deq_" + std::to_string(current) + ".assign(static_cast<size_t> (" + std::to_string(random_size) + ")," + generate_deque_element(record_1.type) + ");\n";
 			local_records[current].length = random_size;
 			break;
 
@@ -402,11 +494,138 @@ std::string random_deq_op(int n, std::vector<deque_records> records) {
 
 
 
+	records = local_records;
+	return { op,records };
+}
 
+std::string random_deque_loop(int number_of_index, std::vector<deque_records> deq_records, int operation_loop_numbers = random_Int(5, 5)) {
+	std::string op;
+	int current = 0;
+	for (int m = 1; m <= operation_loop_numbers; m++) {
+		current = random_Int(0, number_of_index - 1);
+		auto record_1 = deq_records.at(current);
+		int for_loop_size = random_Int(0, 5);
+		switch (random_Int(1, 8)) {
+		case 1:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (deq_" + std::to_string(current) + "[" + std::to_string(idx) + "] > " + generate_deque_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				deq_records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		case 2:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (deq_" + std::to_string(current) + "[" + std::to_string(idx) + "] < " + generate_deque_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				deq_records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		case 3:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (deq_" + std::to_string(current) + "[" + std::to_string(idx) + "] <= " + generate_deque_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				deq_records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		case 4:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (deq_" + std::to_string(current) + "[" + std::to_string(idx) + "] >= " + generate_deque_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				deq_records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		case 5:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (deq_" + std::to_string(current) + "[" + std::to_string(idx) + "] == " + generate_deque_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				deq_records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		case 6:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	if (deq_" + std::to_string(current) + "[" + std::to_string(idx) + "] != " + generate_deque_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_deq_op(number_of_index, deq_records, random_Int(0, 5));
+				deq_records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		//case 7:
+		//	if (record_1.length > for_loop_size) {
+		//		op += "	for (int index = 0; index < " + std::to_string(for_loop_size) + "; index ++) {\n";
+		//		auto [temp_string, temp_records] = random_deq_op(number_of_index, deq_records, 1, for_loop_size);
+		//		deq_records = temp_records;
+		//		op += temp_string;
+		//		op += "	}\n";
+		//	}
+		//	break;
+
+		//case 8:
+		//	if (record_1.length > for_loop_size) {
+		//		op += "	int index_deq_" + std::to_string(m) + "= 0;\n";
+		//		op += "	while (index_deq_" + std::to_string(m) + " < " + std::to_string(for_loop_size) + ") {\n";
+		//		auto [temp_string, temp_records] = random_deq_op(number_of_index, deq_records, 1, for_loop_size);
+		//		deq_records = temp_records;
+		//		op += temp_string;
+		//		op += "	index_deq_" + std::to_string(m) + "++;\n";
+		//		op += "	}\n";
+		//	}
+		//	break;
+		}
+		//std::cout << op << std::endl;
+	}
 	return op;
 }
 
-std::string create_deque(int index) {
+
+
+std::tuple<std::string, std::string, std::vector<deque_records>> create_deque(int index) {
 	std::string code;
 	std::string oss;
 	std::string type;
@@ -419,6 +638,12 @@ std::string create_deque(int index) {
 	std::deque<double> temp_double = {};
 	std::deque<char> temp_char = {};
 	std::deque<bool> temp_bool = {};
+	std::deque<unsigned int> temp_uint = {};
+	std::deque<short> temp_short = {};
+	std::deque<unsigned short> temp_ushort = {};
+	std::deque<unsigned char> temp_uchar = {};
+	std::deque<long> temp_long = {};
+	std::deque<unsigned long> temp_ulong = {};
 
 	//temp 2D vectors
 	std::deque<std::deque<int>> temp_2d_int;
@@ -430,81 +655,15 @@ std::string create_deque(int index) {
 
 	std::vector<deque_records> deq_records;
 
-	enum aval_Type {
-		INT,
-		DOUBLE,
-		CHAR,
-		BOOL,
-		FLOAT,
-		INT_2D,
-		DOUBLE_2D,
-		CHAR_2D,
-		BOOL_2D,
-		FLOAT_2D,
-		NONE
-	};
 
 	aval_Type data_type = NONE;
 
 
 	for (int n = 0; n < index; n++) {
 
-		switch (random_Int(1, 5))
-			/*switch (1)*/ {
-		case 1:
-			type = "int";
-			data_type = INT;
-			deq_records.push_back({ deque_elements_num, type });
-			break;
-		case 2:
-			type = "float";
-			data_type = FLOAT;
-			deq_records.push_back({ deque_elements_num, type });
-			break;
-		case 3:
-			type = "double";
-			data_type = DOUBLE;
-			deq_records.push_back({ deque_elements_num, type });
-			break;
-		case 4:
-			type = "char";
-			data_type = CHAR;
-			deq_records.push_back({ deque_elements_num, type });
-			break;
-		case 5:
-			type = "bool";
-			data_type = BOOL;
-			deq_records.push_back({ deque_elements_num, type });
-			break;
+		auto [data_type, type] = random_type();
 
-		case 6:
-			type = "std::deque<int>";
-			data_type = INT_2D;
-			deq_records.push_back({ deque_rows, type });
-			break;
-		case 7:
-			type = "std::deque<float>";
-			data_type = FLOAT_2D;
-			deq_records.push_back({ deque_rows, type });
-			break;
-		case 8:
-			type = "std::deque<double>";
-			data_type = DOUBLE_2D;
-			deq_records.push_back({ deque_rows, type });
-			break;
-		case 9:
-			type = "std::deque<char>";
-			data_type = CHAR_2D;
-			deq_records.push_back({ deque_rows, type });
-			break;
-		case 10:
-			type = "std::deque<bool>";
-			data_type = BOOL_2D;
-			deq_records.push_back({ deque_rows, type });
-			break;
-		}
-
-
+		deq_records.push_back({ deque_elements_num, type });
 		//vec_records.push_back({ vec_elements_num, type });
 
 
@@ -622,94 +781,97 @@ std::string create_deque(int index) {
 			switch (data_type) {
 			case INT:
 				temp_int = create_deq_int(deque_elements_num);
+				oss += deque_to_string(temp_int);
+
+				temp_int = {};
 				break;
 
 			case FLOAT:
 				temp_float = create_deq_float(deque_elements_num);
+				oss += deque_to_string(temp_float);
+
+				temp_float = {};
 				break;
 
 			case DOUBLE:
 				temp_double = create_deq_double(deque_elements_num);
+				oss += deque_to_string(temp_double);
+
+				temp_double = {};
 				break;
 
 			case CHAR:
 				temp_char = create_deq_char(deque_elements_num);
+				oss += deque_to_string(temp_char);
+
+				temp_char = {};
 				break;
 
 			case BOOL:
 				temp_bool = create_deq_bool(deque_elements_num);
+				oss += deque_to_string(temp_bool);
+				temp_bool = {};
+				break;
+			case UCHAR:
+				temp_uchar = create_deq_uchar(deque_elements_num);
+				oss += deque_to_string(temp_uchar);
+				temp_uchar = {};
+				break;
+			case USHORT:
+				temp_ushort = create_deq_ushort(deque_elements_num);
+				oss += deque_to_string(temp_ushort);
+				temp_ushort = {};
+				break;
+			case SHORT:
+				temp_short = create_deq_short(deque_elements_num);
+				oss += deque_to_string(temp_short);
+				temp_short = {};
+				break;
+			case UINT:
+				temp_uint = create_deq_uint(deque_elements_num);
+				oss += deque_to_string(temp_uint);
+				temp_uint = {};
+				break;
+			case ULONG:
+				temp_ulong = create_deq_ulong(deque_elements_num);
+				oss += deque_to_string(temp_ulong);
+				temp_ulong = {};
+				break;
+			case LONG:
+				temp_long = create_deq_long(deque_elements_num);
+				oss += deque_to_string(temp_long);
+				temp_long = {};
 				break;
 
 			}
 
 
-
-			if (data_type == INT) {
-
-				for (int i = 1; i <= deque_elements_num; i++) {
-					oss += std::to_string(temp_int[i - 1]);
-					if (i != deque_elements_num) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_int = {};
-			}
-			else if (data_type == FLOAT) {
-				for (int i = 1; i <= deque_elements_num; i++) {
-					oss += std::to_string(temp_float[i - 1]);
-					if (i != deque_elements_num) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_float = {};
-			}
-
-
-			else if (data_type == DOUBLE) {
-				for (int i = 1; i <= deque_elements_num; i++) {
-					oss += std::to_string(temp_double[i - 1]);
-					if (i != deque_elements_num) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_double = {};
-			}
-
-			else if (data_type == CHAR) {
-				for (int i = 1; i <= deque_elements_num; i++) {
-					oss += std::to_string(temp_char[i - 1]);
-					if (i != deque_elements_num) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_char = {};
-			}
-
-			else {
-				for (int i = 1; i <= deque_elements_num; i++) {
-					oss += std::to_string(temp_bool[i - 1]);
-					if (i != deque_elements_num) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-				temp_bool = {};
-			}
-
-
 			//print out secton
-
-			code += "	std::deque<" + type + "> deq_" + std::to_string(n) + " = {" + oss + "};\n";
+			switch (random_Int(1, 3)) {
+			case 1:
+				code += "	std::deque<" + type + "> deq_" + std::to_string(n) + " = {" + oss + "};\n";
+				break;
+			case 2:
+				code += "	std::deque<" + type + "> deq_" + std::to_string(n) + "(" +std::to_string(deque_elements_num)+","+ generate_deque_element(type) + ");\n";
+				break;
+			case 3:
+				code += "	std::deque<" + type + "> deq_" + std::to_string(n) + "(" + std::to_string(deque_elements_num) + ");\n";
+				break;
+			}
 			oss = {};
 
 		}
 
 	}
+	auto deq_init = code;
+	code.clear();
+	auto output_record = deq_records;
 	//random operations generated
-	code += random_deq_op(index, deq_records);
+	auto [temp_string, temp_records] = random_deq_op(index, deq_records);
+	code += temp_string;
+	deq_records = temp_records;
+
+	code += random_deque_loop(index, deq_records,1);
 
 	for (int m = 0; m < index; m++) {
 		code += "	std::vector<" + deq_records[m].type + "> newdeq_" + std::to_string(m) + "(deq_" + std::to_string(m) + ".begin(), deq_" + std::to_string(m) + ".end());\n";
@@ -719,10 +881,13 @@ std::string create_deque(int index) {
 
 	code += "\n";
 
-
+	//for (const auto& record : deq_records) {
+	//	std::cout << "Deque length: " << record.length
+	//		<< ", Type: " << record.type << std::endl;
+	//}
 
 
 	code += "\n";
-	return code;
+	return { deq_init,code,output_record };
 }
 

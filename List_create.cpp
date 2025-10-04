@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <initializer_list>
 #include <string>
-#include "List_create.h"
+#include "Random_program.h"
 #include <list>
 
 
@@ -89,13 +89,59 @@ std::list<bool> create_list_bool(int length = 1) {
 	}
 	return temp;
 }
+std::list<unsigned int> create_list_uint(int length = 1) {
+	std::list<unsigned int> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_UInt(0, 100));
+	}
+	return temp;
+}
 
+std::list<short> create_list_short(int length = 1) {
+	std::list<short> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_Short(-100, 100));
+	}
 
+	return temp;
+}
 
-struct list_records {
-	int length;
-	std::string type;
-};
+std::list<unsigned short> create_list_ushort(int length = 1) {
+	std::list<unsigned short> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_UShort(0, 100));
+	}
+
+	return temp;
+}
+
+std::list<unsigned char> create_list_uchar(int length = 1) {
+	std::list<unsigned char> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_UChar());
+	}
+
+	return temp;
+}
+
+std::list<long> create_list_long(int length = 1) {
+	std::list<long> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_Long(-100, 100));
+	}
+
+	return temp;
+}
+
+std::list<unsigned long> create_list_ulong(int length = 1) {
+	std::list<unsigned long> temp;
+	for (int n = 1; n <= length; n++) {
+		temp.push_back(random_ULong(0, 100));
+	}
+
+	return temp;
+}
+
 
 
 std::string generate_list_element(std::string type) {
@@ -111,6 +157,18 @@ std::string generate_list_element(std::string type) {
 		return std::to_string(random_Char());
 	else if (type == "bool")
 		return std::to_string(random_Bool());
+	else if (type == "unsigned int")
+		return std::to_string(random_UInt(0, 100));
+	else if (type == "unsigned char")
+		return std::to_string(random_UChar());
+	else if (type == "short")
+		return std::to_string(random_Short(100, 100));
+	else if (type == "unsigned short")
+		return std::to_string(random_UShort(0, 100));
+	else if (type == "long")
+		return std::to_string(random_Long(-100, 100));
+	else if (type == "unsigned long")
+		return std::to_string(random_ULong(0, 100));
 	else if (type == "std::list<int>") {
 		std::list<int> temp_int = create_list_int(vec_elements_num);
 		op += "{";
@@ -199,15 +257,31 @@ std::string generate_list_element(std::string type) {
 
 }
 
+std::vector<list_records> merge_records_min_length(
+	const std::vector<list_records>& records1,
+	const std::vector<list_records>& records2
+) {
+	std::vector<list_records> merged;
+	size_t size = std::min(records1.size(), records2.size());
+	merged.reserve(size);
+
+	for (size_t i = 0; i < size; ++i) {
+		list_records merged_record;
+		merged_record.type = records1[i].type; // 你也可以选择 records2[i].type 或做一致性判断
+		merged_record.length = std::min(records1[i].length, records2[i].length);
+		merged.push_back(merged_record);
+	}
+
+	return merged;
+}
 
 
-std::string random_list_op(int n, std::vector<list_records> records) {
+std::pair<std::string, std::vector<list_records>> random_list_op(int n, std::vector<list_records> records, int operation_numbers = 10, int loop_index = 1) {
 	std::string op;
-	int operation_numbers = random_Int(5, 5);
 	int current = 0;
 	int current_2 = 0;
 	std::vector<list_records> local_records = records;
-	int random_size = random_Int(5, 100);
+	int random_size = random_Int(0, 19);
 
 	for (int m = 1; m <= operation_numbers; m++) {
 		current = random_Int(0, n - 1);
@@ -218,42 +292,48 @@ std::string random_list_op(int n, std::vector<list_records> records) {
 		int tmp_length_2;
 		switch (random_Int(1, 27)) {
 		case 1:
-			op += "	list_" + std::to_string(current) + ".push_front(" + generate_list_element(record_1.type) + "); \n";//Adds an element to the end of the vector.
-			local_records[current].length += 1;
+			if (record_1.length < 20) {
+				op += "	list_" + std::to_string(current) + ".push_front(" + generate_list_element(record_1.type) + "); \n";//Adds an element to the end of the vector.
+				local_records[current].length += 1* loop_index;
+			}
 			break;
 		case 2:
-			op += "	list_" + std::to_string(current) + ".push_back(" + generate_list_element(record_1.type) + "); \n";//Adds an element to the end of the vector.
-			local_records[current].length += 1;
+			if (record_1.length < 20) {
+				op += "	list_" + std::to_string(current) + ".push_back(" + generate_list_element(record_1.type) + "); \n";//Adds an element to the end of the vector.
+				local_records[current].length += 1* loop_index;
+			}
 			break;
 		case 3:
-			if (record_1.length == 0) {
-				op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
-				op += "	list_" + std::to_string(current) + ".insert(list_it_" + std::to_string(m) + ", " + generate_list_element(record_1.type) + ");\n";
+			if (record_1.length < 20) {
+				if (record_1.length == 0) {
+					op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
+					op += "	list_" + std::to_string(current) + ".insert(list_it_" + std::to_string(m) + ", " + generate_list_element(record_1.type) + ");\n";
+				}
+				else {
+					op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
+					op += "	list_" + std::to_string(current) + ".insert(list_it_" + std::to_string(m) + "," + generate_list_element(record_1.type) + "); \n"; //insert at certain place
+				}
+				local_records[current].length += 1* loop_index;
 			}
-			else {
-				op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
-				op += "	list_" + std::to_string(current) + ".insert(list_it_" + std::to_string(m) + "," + generate_list_element(record_1.type) + "); \n"; //insert at certain place
-			}
-			local_records[current].length += 1;
 			break;
 		case 4:
 			if (record_1.length != 0) {
 				op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
 				op += "	list_" + std::to_string(current) + ".erase(list_it_" + std::to_string(m) + "); \n";
-				local_records[current].length -= 1;
+				local_records[current].length -= 1* loop_index;
 			}
 			break;
 		case 5:
 			if (record_1.length != 0) {
 				op += "	list_" + std::to_string(current) + ".pop_back();\n";
-				local_records[current].length -= 1;
+				local_records[current].length -= 1* loop_index;
 			}
 			break;
 
 		case 6:
 			if (record_1.length != 0) {
 				op += "	list_" + std::to_string(current) + ".pop_front();\n";
-				local_records[current].length -= 1;
+				local_records[current].length -= 1* loop_index;
 			}
 			break;
 		case 7:
@@ -264,7 +344,8 @@ std::string random_list_op(int n, std::vector<list_records> records) {
 			local_records[current].length = 0;
 			break;
 		case 9:
-			op += "	list_" + std::to_string(current) + ".assign(static_cast<size_t> (" + std::to_string(random_Int(1, 19)) + ")," + generate_list_element(record_1.type) + ");\n";
+			op += "	list_" + std::to_string(current) + ".assign(static_cast<size_t> (" + std::to_string(random_size) + ")," + generate_list_element(record_1.type) + ");\n";
+			local_records[current].length = random_size;
 			break;
 			//case 10:
 			//	op += "	vec_" + std::to_string(current) + ".shrink_to_fit();\n"; // Reduce capacity to fit size
@@ -279,103 +360,113 @@ std::string random_list_op(int n, std::vector<list_records> records) {
 			}
 			break;
 		case 11:
-			if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool") {
-				op += "	list_" + std::to_string(current) + ".emplace_front(" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+			if (record_1.length < 20) {
+				if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool" 
+					or record_1.type == "unsigned int" or record_1.type == "unsigned short" or record_1.type == "unsigned char" or record_1.type == "short" or record_1.type == "long"
+					or record_1.type == "unsigned long") {
+					op += "	list_" + std::to_string(current) + ".emplace_front(" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				}
+				else if (record_1.type == "std::list<int>")
+					op += "	list_" + std::to_string(current) + ".emplace_front(std::initializer_list<int>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::list<float>")
+					op += "	list_" + std::to_string(current) + ".emplace_front(std::initializer_list<float>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::list<double>")
+					op += "	list_" + std::to_string(current) + ".emplace_front(std::initializer_list<double>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::list<char>")
+					op += "	list_" + std::to_string(current) + ".emplace_front(std::initializer_list<char>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::list<bool>")
+					op += "	list_" + std::to_string(current) + ".emplace_front(std::initializer_list<bool>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				local_records[current].length += 1* loop_index;
 			}
-			else if (record_1.type == "std::list<int>")
-				op += "	list_" + std::to_string(current) + ".emplace_front(std::initializer_list<int>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::list<float>")
-				op += "	list_" + std::to_string(current) + ".emplace_front(std::initializer_list<float>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::list<double>")
-				op += "	list_" + std::to_string(current) + ".emplace_front(std::initializer_list<double>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::list<char>")
-				op += "	list_" + std::to_string(current) + ".emplace_front(std::initializer_list<char>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::list<bool>")
-				op += "	list_" + std::to_string(current) + ".emplace_front(std::initializer_list<bool>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-			local_records[current].length += 1;
 			break;
 
 		case 12:
-			if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool") {
-				op += "	list_" + std::to_string(current) + ".emplace_back(" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+			if (record_1.length < 20) {
+				if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool"
+					or record_1.type == "unsigned int" or record_1.type == "unsigned short" or record_1.type == "unsigned char" or record_1.type == "short" or record_1.type == "long"
+					or record_1.type == "unsigned long") {
+					op += "	list_" + std::to_string(current) + ".emplace_back(" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				}
+				else if (record_1.type == "std::list<int>")
+					op += "	list_" + std::to_string(current) + ".emplace_back(std::initializer_list<int>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::list<float>")
+					op += "	list_" + std::to_string(current) + ".emplace_back(std::initializer_list<float>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::list<double>")
+					op += "	list_" + std::to_string(current) + ".emplace_back(std::initializer_list<double>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::list<char>")
+					op += "	list_" + std::to_string(current) + ".emplace_back(std::initializer_list<char>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::list<bool>")
+					op += "	list_" + std::to_string(current) + ".emplace_back(std::initializer_list<bool>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				local_records[current].length += 1* loop_index;
 			}
-			else if (record_1.type == "std::list<int>")
-				op += "	list_" + std::to_string(current) + ".emplace_back(std::initializer_list<int>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::list<float>")
-				op += "	list_" + std::to_string(current) + ".emplace_back(std::initializer_list<float>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::list<double>")
-				op += "	list_" + std::to_string(current) + ".emplace_back(std::initializer_list<double>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::list<char>")
-				op += "	list_" + std::to_string(current) + ".emplace_back(std::initializer_list<char>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-			else if (record_1.type == "std::list<bool>")
-				op += "	list_" + std::to_string(current) + ".emplace_back(std::initializer_list<bool>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-			local_records[current].length += 1;
 			break;
 		case 13:
-			if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool") {
-				if (record_1.length == 0) {
-					op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", " + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-				}
-				else {
-					op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", " + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+			if (record_1.length < 20) {
+				if (record_1.type == "int" or record_1.type == "double" or record_1.type == "char" or record_1.type == "float" or record_1.type == "bool") {
+					if (record_1.length == 0) {
+						op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", " + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+					}
+					else {
+						op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", " + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
 
+					}
 				}
-			}
-			else if (record_1.type == "std::list<int>") {
-				if (record_1.length == 0) {
-					op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ",  std::initializer_list<int>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-				}
-				else {
-					op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", std::initializer_list<int>" + generate_list_element(record_1.type) + "); \n"; // Efficient push_back
+				else if (record_1.type == "std::list<int>") {
+					if (record_1.length == 0) {
+						op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ",  std::initializer_list<int>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+					}
+					else {
+						op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", std::initializer_list<int>" + generate_list_element(record_1.type) + "); \n"; // Efficient push_back
 
+					}
 				}
-			}
-			else if (record_1.type == "std::list<float>") {
-				if (record_1.length == 0) {
-					op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ",  std::initializer_list<float>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-				}
-				else {
-					op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", std::initializer_list<float>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+				else if (record_1.type == "std::list<float>") {
+					if (record_1.length == 0) {
+						op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ",  std::initializer_list<float>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+					}
+					else {
+						op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", std::initializer_list<float>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
 
+					}
 				}
+				else if (record_1.type == "std::list<double>") {
+					if (record_1.length == 0) {
+						op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ",  std::initializer_list<double>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+					}
+					else {
+						op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", std::initializer_list<double>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+					}
+				}
+				else if (record_1.type == "std::list<char>") {
+					if (record_1.length == 0) {
+						op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ",  std::initializer_list<char>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+					}
+					else {
+						op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", std::initializer_list<char>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+					}
+				}
+				else if (record_1.type == "std::list<bool>") {
+					if (record_1.length == 0) {
+						op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ",  std::initializer_list<bool>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+					}
+					else {
+						op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
+						op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", std::initializer_list<bool>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
+					}
+				}
+				local_records[current].length += 1* loop_index;
 			}
-			else if (record_1.type == "std::list<double>") {
-				if (record_1.length == 0) {
-					op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ",  std::initializer_list<double>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-				}
-				else {
-					op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", std::initializer_list<double>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-				}
-			}
-			else if (record_1.type == "std::list<char>") {
-				if (record_1.length == 0) {
-					op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ",  std::initializer_list<char>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-				}
-				else {
-					op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", std::initializer_list<char>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-				}
-			}
-			else if (record_1.type == "std::list<bool>") {
-				if (record_1.length == 0) {
-					op += "	auto list_it_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin(); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ",  std::initializer_list<bool>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-				}
-				else {
-					op += "	auto list_it_" + std::to_string(m) + " = next(list_" + std::to_string(current) + ".begin(), " + std::to_string(random_Int(0, record_1.length - 1)) + "); \n";
-					op += "	list_" + std::to_string(current) + ".emplace(list_it_" + std::to_string(m) + ", std::initializer_list<bool>" + generate_list_element(record_1.type) + ");\n"; // Efficient push_back
-				}
-			}
-			local_records[current].length += 1;
 			break;
 		case 14:
 			op += "	list_" + std::to_string(current) + ".size();\n"; //Returns the number of elements in the vector.
@@ -428,15 +519,150 @@ std::string random_list_op(int n, std::vector<list_records> records) {
 
 
 
+	records = local_records;
+	return { op,records };
+}
 
+std::string random_list_loop(int number_of_index, std::vector<list_records> records, int operation_loop_numbers = random_Int(5, 5)) {
+	std::string op;
+	int current = 0;
+	for (int m = 1; m <= operation_loop_numbers; m++) {
+		current = random_Int(0, number_of_index - 1);
+		auto record_1 = records.at(current);
+		int for_loop_size = random_Int(0, 5);
+		switch (random_Int(1, 8)) {
+		case 1:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	auto index_list_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin();\n";
+				op += "	std::advance(index_list_" + std::to_string(m) + ", " + std::to_string(idx) + ");\n";
+				op += "	if ( *index_list_" + std::to_string(m) + " > " + generate_list_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_list_op(number_of_index, records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_list_op(number_of_index, records, random_Int(0, 5));
+				records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		case 2:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	auto index_list_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin();\n";
+				op += "	std::advance(index_list_" + std::to_string(m) + ", " + std::to_string(idx) + ");\n";
+				op += "	if ( *index_list_" + std::to_string(m) + " > " + generate_list_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_list_op(number_of_index, records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_list_op(number_of_index, records, random_Int(0, 5));
+				records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		case 3:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	auto index_list_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin();\n";
+				op += "	std::advance(index_list_" + std::to_string(m) + ", " + std::to_string(idx) + ");\n";
+				op += "	if ( *index_list_" + std::to_string(m) + " > " + generate_list_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_list_op(number_of_index, records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_list_op(number_of_index, records, random_Int(0, 5));
+				records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		case 4:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	auto index_list_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin();\n";
+				op += "	std::advance(index_list_" + std::to_string(m) + ", " + std::to_string(idx) + ");\n";
+				op += "	if ( *index_list_" + std::to_string(m) + " > " + generate_list_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_list_op(number_of_index, records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_list_op(number_of_index, records, random_Int(0, 5));
+				records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		case 5:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	auto index_list_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin();\n";
+				op += "	std::advance(index_list_" + std::to_string(m) + ", " + std::to_string(idx) + ");\n";
+				op += "	if ( *index_list_" + std::to_string(m) + " > " + generate_list_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_list_op(number_of_index, records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_list_op(number_of_index, records, random_Int(0, 5));
+				records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		case 6:
+			// multiple layer of if/else：insert/replace element
+			if (record_1.length > 0) {
+				int idx = random_Int(0, record_1.length - 1);
+				op += "	auto index_list_" + std::to_string(m) + " = list_" + std::to_string(current) + ".begin();\n";
+				op += "	std::advance(index_list_" + std::to_string(m) + ", " + std::to_string(idx) + ");\n";
+				op += "	if ( *index_list_" + std::to_string(m) + " > " + generate_list_element(record_1.type) + ") {\n";
+				auto [temp_string_1, temp_records_1] = random_list_op(number_of_index, records, random_Int(0, 5));
+				op += temp_string_1;
+				op += "	}\n";
+				op += "	else {\n";
+				auto [temp_string_2, temp_records_2] = random_list_op(number_of_index, records, random_Int(0, 5));
+				records = merge_records_min_length(temp_records_1, temp_records_2);
+				op += temp_string_2;
+				op += "	}\n";
+			}
+			break;
+		//case 7:
+		//	if (record_1.length > for_loop_size) {
+		//		op += "	for (int index = 0; index < " + std::to_string(for_loop_size) + "; index ++) {\n";
+		//		auto [temp_string, temp_records] = random_list_op(number_of_index, records, 1, for_loop_size);
+		//		records = temp_records;
+		//		op += temp_string;
+		//		op += "	}\n";
+		//	}
+		//	break;
+
+		//case 8:
+		//	if (record_1.length > for_loop_size) {
+		//		op += "	int index_list_" + std::to_string(m) + "= 0;\n";
+		//		op += "	while (index_list_" + std::to_string(m) + " < " + std::to_string(for_loop_size) + ") {\n";
+		//		auto [temp_string, temp_records] = random_list_op(number_of_index, records, 1, for_loop_size);
+		//		records = temp_records;
+		//		op += temp_string;
+		//		op += "	index_list_" + std::to_string(m) + "++;\n";
+		//		op += "	}\n";
+		//	}
+		//	break;
+		}
+		//std::cout << op << std::endl;
+	}
 	return op;
 }
 
 
 
-
-
-std::string create_list(int index) {
+std::tuple<std::string, std::string, std::vector<list_records>> create_list(int index) {
 	std::string code;
 	std::string oss;
 	std::string type;
@@ -448,6 +674,12 @@ std::string create_list(int index) {
 	std::list<double> temp_double = {};
 	std::list<char> temp_char = {};
 	std::list<bool> temp_bool = {};
+	std::list<unsigned int> temp_uint = {};
+	std::list<short> temp_short = {};
+	std::list<unsigned short> temp_ushort = {};
+	std::list<unsigned char> temp_uchar = {};
+	std::list<long> temp_long = {};
+	std::list<unsigned long> temp_ulong = {};
 
 
 	//temp 2D sets
@@ -459,77 +691,12 @@ std::string create_list(int index) {
 
 	std::vector<list_records> list_records;
 
-	enum aval_Type {
-		INT,
-		DOUBLE,
-		CHAR,
-		BOOL,
-		FLOAT,
-		INT_2D,
-		DOUBLE_2D,
-		CHAR_2D,
-		BOOL_2D,
-		FLOAT_2D,
-		NONE
-	};
 
 	aval_Type data_type = NONE;
 
 	for (int n = 0; n < index; n++) {
 
-		switch (random_Int(1, 5)) {
-		case 1:
-			type = "int";
-			data_type = INT;
-			break;
-		case 2:
-			type = "float";
-			data_type = FLOAT;
-
-			break;
-		case 3:
-			type = "double";
-			data_type = DOUBLE;
-
-			break;
-		case 4:
-			type = "char";
-			data_type = CHAR;
-
-			break;
-		case 5:
-			type = "bool";
-			data_type = BOOL;
-
-			break;
-
-		case 6:
-			type = "std::list<int>";
-			data_type = INT_2D;
-
-			break;
-		case 7:
-			type = "std::list<float>";
-			data_type = FLOAT_2D;
-
-			break;
-		case 8:
-			type = "std::list<double>";
-			data_type = DOUBLE_2D;
-
-			break;
-		case 9:
-			type = "std::list<char>";
-			data_type = CHAR_2D;
-
-			break;
-		case 10:
-			type = "std::list<bool>";
-			data_type = BOOL_2D;
-
-			break;
-
-		}
+		auto [data_type, type] = random_type();
 
 		if (data_type == INT_2D or data_type == DOUBLE_2D or data_type == CHAR_2D or data_type == FLOAT_2D or data_type == BOOL_2D) {
 			//if (data_type == INT_2D or data_type == DOUBLE_2D or data_type == CHAR_2D or data_type == FLOAT_2D)
@@ -667,122 +834,121 @@ std::string create_list(int index) {
 
 
 		else {
+			int temp_size = 0;
 			switch (data_type) {
 			case INT:
 				temp_int = create_list_int(list_elements_num);
+				temp_size = temp_int.size();
+				list_records.push_back({ temp_size, type });
+				oss += list_to_string(temp_int);
+
+				temp_int = {};
 				break;
 
 			case FLOAT:
 				temp_float = create_list_float(list_elements_num);
+				temp_size = temp_float.size();
+				list_records.push_back({ temp_size, type });
+				oss += list_to_string(temp_float);
+
+				temp_float = {};
 				break;
 
 			case DOUBLE:
 				temp_double = create_list_double(list_elements_num);
+				temp_size = temp_double.size();
+				list_records.push_back({ temp_size, type });
+				oss += list_to_string(temp_double);
+
+				temp_double = {};
 				break;
 
 			case CHAR:
 				temp_char = create_list_char(list_elements_num);
+				temp_size = temp_char.size();
+				list_records.push_back({ temp_size, type });
+				oss += list_to_string(temp_char);
+
+				temp_char = {};
 				break;
 
 			case BOOL:
 				temp_bool = create_list_bool(list_elements_num);
+				temp_size = temp_bool.size();
+				list_records.push_back({ temp_size, type });
+				oss += list_to_string(temp_bool);
+				temp_bool = {};
+				break;
+			case UCHAR:
+				temp_uchar = create_list_uchar(list_elements_num);
+				temp_size = temp_uchar.size();
+				list_records.push_back({ temp_size, type });
+				oss += list_to_string(temp_uchar);
+				temp_uchar = {};
+				break;
+			case USHORT:
+				temp_ushort = create_list_ushort(list_elements_num);
+				temp_size = temp_ushort.size();
+				list_records.push_back({ temp_size, type });
+				oss += list_to_string(temp_ushort);
+				temp_ushort = {};
+				break;
+			case SHORT:
+				temp_short = create_list_short(list_elements_num);
+				temp_size = temp_short.size();
+				list_records.push_back({ temp_size, type });
+				oss += list_to_string(temp_short);
+				temp_short = {};
+				break;
+			case UINT:
+				temp_uint = create_list_uint(list_elements_num);
+				temp_size = temp_uint.size();
+				list_records.push_back({ temp_size, type });
+				oss += list_to_string(temp_uint);
+				temp_uint = {};
+				break;
+			case ULONG:
+				temp_ulong = create_list_ulong(list_elements_num);
+				temp_size = temp_ulong.size();
+				list_records.push_back({ temp_size, type });
+				oss += list_to_string(temp_ulong);
+				temp_ulong = {};
+				break;
+			case LONG:
+				temp_long = create_list_long(list_elements_num);
+				temp_size = temp_long.size();
+				list_records.push_back({ temp_size, type });
+				oss += list_to_string(temp_long);
+				temp_long = {};
 				break;
 
-			}
-
-
-
-			if (data_type == INT) {
-				int temp_size = temp_int.size();
-				list_records.push_back({ temp_size, type });
-				for (int i = 1; i <= temp_size; i++) {
-					auto it = temp_int.begin();
-					advance(it, i - 1);
-					auto value = *it;
-					oss += std::to_string(value);
-					if (i != temp_size) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_int = {};
-			}
-			else if (data_type == FLOAT) {
-				int temp_size = temp_float.size();
-				list_records.push_back({ temp_size, type });
-				for (int i = 1; i <= temp_size; i++) {
-					auto it = temp_float.begin();
-					advance(it, i - 1);
-					auto value = *it;
-					oss += std::to_string(value);
-					if (i != temp_size) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_float = {};
-			}
-
-
-			else if (data_type == DOUBLE) {
-				int temp_size = temp_double.size();
-				list_records.push_back({ temp_size, type });
-				for (int i = 1; i <= temp_size; i++) {
-					auto it = temp_double.begin();
-					advance(it, i - 1);
-					auto value = *it;
-					oss += std::to_string(value);
-					if (i != temp_size) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_double = {};
-			}
-
-			else if (data_type == CHAR) {
-				int temp_size = temp_char.size();
-				list_records.push_back({ temp_size, type });
-				for (int i = 1; i <= temp_size; i++) {
-					auto it = temp_char.begin();
-					advance(it, i - 1);
-					auto value = *it;
-					oss += std::to_string(value);
-					if (i != temp_size) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-
-				temp_char = {};
-			}
-
-			else {
-				int temp_size = temp_bool.size();
-				list_records.push_back({ 2, type });
-				for (int i = 1; i <= temp_size; i++) {
-					auto it = temp_bool.begin();
-					advance(it, i - 1);
-					auto value = *it;
-					oss += std::to_string(value);
-					if (i != temp_size) {
-						oss += ", "; // Add a separator between numbers
-					}
-				}
-				temp_bool = {};
 			}
 
 
 			//print out secton
 
-			code += "	std::list<" + type + "> list_" + std::to_string(n) + " = {" + oss + "};\n";
+			switch (random_Int(1,1)) {
+			case 1:
+				code += "	std::list<" + type + "> list_" + std::to_string(n) + " = {" + oss + "};\n";
+				break;
+			case 2:
+				code += "	std::list<" + type + "> list_" + std::to_string(n) + "(" + std::to_string(list_elements_num) + "," + generate_list_element(type) + ");\n";
+				break;
+			}
 			oss = {};
 
 		}
 
 	}
-
+	auto list_init = code;
+	code.clear();
+	auto output_record = list_records;
 	//random operations generated
-	code += random_list_op(index, list_records);
+	auto [temp_string, temp_records] = random_list_op(index, list_records);
+	code += temp_string;
+	list_records = temp_records;
+
+	code += random_list_loop(index, list_records, 1);
 
 	//code += "	std::vector<uint8_t> buffer;\n";
 	for (int m = 0; m < index; m++) {
@@ -793,13 +959,13 @@ std::string create_list(int index) {
 
 	code += "\n";
 
-	for (const auto& record : list_records) {
-		std::cout << "Length: " << record.length
-			<< ", Type: " << record.type << std::endl;
-	}
+	//for (const auto& record : list_records) {
+	//	std::cout << "Length: " << record.length
+	//		<< ", Type: " << record.type << std::endl;
+	//}
 
 
-	return code;
+	return { list_init,code,output_record };
 
 
 }

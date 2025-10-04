@@ -1,10 +1,10 @@
 set _hector_comp_use_new_flow true
 set _hector_softfloat_version custom
-set _hector_sym_maxiter_allgood 1024
+set _hector_sym_maxiter_allgood 4096
 
 proc compile_spec {} {
     create_design -name spec -top hector_wrapper
-    cppan -Iinclude -DCHECKFP -DDPV_MAX_VECTOR_SIZE=1024 ../cc/random_stl_program.cc 
+    cppan -m64 -Iinclude -DCHECKFP -DDPV_MAX_VECTOR_SIZE=4096 ../cc/random_stl_program.cc 
     compile_design spec
 }
 
