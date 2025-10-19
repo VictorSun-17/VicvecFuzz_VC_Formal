@@ -23,4 +23,4 @@ The provided ./compile_loop.sh script is a convenience wrapper that repeatedly b
    ./compile_loop.sh
    
 ## 🚨 Important
-The script currently assumes a hardcoded path to a VC Formal installation. It is likely needed to edit compile_loop.sh to point to the VC Formal binary. Consider the script as a starting point for automation rather than a universal solution.
+The script currently assumes a hardcoded path to a VC Formal installation. It is likely needed to edit compile_loop.sh to point to the VC Formal binary on your system. It is also available to adjust the loop size to do automation tests.
