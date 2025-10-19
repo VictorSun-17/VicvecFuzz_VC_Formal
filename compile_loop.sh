@@ -9,7 +9,7 @@ echo "Program is starting"
 SECONDS=0
 success=0
 
-for i in {1..10}
+for i in {1..5}
 do
     echo "$i Times starting ./main"
     ./main
