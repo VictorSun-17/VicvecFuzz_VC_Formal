@@ -12,6 +12,7 @@ VicvecFuzz generates random C++ programs that test STL containers and then deriv
 
 ## Running the Generator
 1. Once built, you can directly run the generator to produce a single random testcase:
+
    ./main
 
 ## Using compile_loop.sh
